@@ -135,8 +135,8 @@ void lihatPeta() {
     cout << "#                                  #\n";
     cout << "# [ION1] [ION2] [ION3]             #\n";
     cout << "#                                  #\n";
-    cout << "#            [END]                 #\n";
-    cout << "####################################\n";
+    cout << "|            [END]                 #\n";
+    cout << "|==================================|\n";
     cout << "\nTekan Enter untuk kembali ke Dashboard...";
     cin.ignore();
     cin.get();

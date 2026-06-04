@@ -23,9 +23,9 @@ void prosesQualityControl(vector<Wafer>& w) {
             }
         }
 
-        if (wafer.totalDefect >= 75) wafer.grade = "i3";
+        if (wafer.totalDefect >= 75) wafer.grade = "i7";
         else if (wafer.totalDefect >= 50) wafer.grade = "i5";
-        else if (wafer.totalDefect >= 25) wafer.grade = "i7";
+        else if (wafer.totalDefect >= 25) wafer.grade = "i3";
         else wafer.grade = "i9";
 
         wafer.labelAkhir = wafer.labelAwal + "-" + wafer.grade;
