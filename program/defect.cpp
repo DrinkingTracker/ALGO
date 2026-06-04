@@ -8,7 +8,7 @@ using namespace std;
 void prosesQualityControl(vector<Wafer>& w) {
     random_device rd;
     mt19937 gen(rd());
-    bernoulli_distribution d(0.4); // Probabilitas defect diatur natural
+    bernoulli_distribution d(0.3); // 30% kemungkinan defect per core
 
     for (auto& wafer : w) {
         wafer.totalOK = 0;
@@ -23,24 +23,28 @@ void prosesQualityControl(vector<Wafer>& w) {
             }
         }
 
-        if (wafer.totalDefect >= 75) wafer.grade = "i3";
-        else if (wafer.totalDefect >= 50) wafer.grade = "i5";
-        else if (wafer.totalDefect >= 25) wafer.grade = "i7";
-        else wafer.grade = "i9";
+        // Grade berdasarkan persentase core OK (totalOK dari 100)
+        if (wafer.totalOK >= 75)      wafer.grade = "i9"; // >=75% OK -> terbaik
+        else if (wafer.totalOK >= 50) wafer.grade = "i7"; // 50-74% OK
+        else if (wafer.totalOK >= 25) wafer.grade = "i5"; // 25-49% OK
+        else                          wafer.grade = "i3"; // <25% OK -> terburuk
 
         wafer.labelAkhir = wafer.labelAwal + "-" + wafer.grade;
     }
 }
 
 void pelabelanUlangAnimasi(vector<Wafer>& w) {
-        cout << "=== PROSES GRADING & PELABELAN ULANG ===\n";
+    cout << "\n=== PROSES GRADING & PELABELAN ULANG ===\n";
     delayAnimasi(1000);
 
     for (size_t i = 0; i < w.size(); i++) {
-        cout << "Inspeksi " << w[i].labelAwal << " ... Defect: " << w[i].totalDefect << "% ";
-        delayAnimasi(400); 
-        cout << "-> Grade: " << w[i].grade << "  =>  " << w[i].labelAkhir << " [DONE]\n";
-        delayAnimasi(300); 
+        int persen = w[i].totalOK; // sudah dari 100
+        cout << "Inspeksi " << w[i].labelAwal 
+             << " ... Core OK: " << persen << "/100 (" << persen << "%) ";
+        delayAnimasi(400);
+        cout << "-> Grade: " << w[i].grade 
+             << "  =>  " << w[i].labelAkhir << " [DONE]\n";
+        delayAnimasi(300);
     }
     cout << "\nPelabelan akhir selesai.\n";
 }
