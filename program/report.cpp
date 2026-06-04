@@ -1,5 +1,5 @@
-#include "heading\report.h"
-#include "heading\utils.h"
+#include "heading/report.h"
+#include "heading/utils.h"
 #include <iostream>
 #include <fstream>
 

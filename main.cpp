@@ -162,17 +162,17 @@ int main() {
     int pilihan;
     do {
         clearScreen();
-        cout << "╔══════════════════════════════════════════╗\n";
-        cout << "║    CPU WAFER PRODUCTION SIMULATION v1.0  ║\n";
-        cout << "║                                          ║\n";
-        cout << "╠══════════════════════════════════════════╣\n";
-        cout << "║  [1] Mulai Simulasi Produksi Baru        ║\n";
-        cout << "║  [2] Lihat Peta Stasiun Produksi         ║\n";
-        cout << "║  [3] Reset Batch                         ║\n";
-        cout << "║  [4] Buka report.txt                     ║\n";
-        cout << "║  [5] Cari Wafer (Binary Search)          ║\n";
-        cout << "║  [6] Keluar                              ║\n";
-        cout << "╚══════════════════════════════════════════╝\n";
+        cout << "+==========================================+\n";
+        cout << "|    CPU WAFER PRODUCTION SIMULATION v1.0  |\n";
+        cout << "|                                          |\n";
+        cout << "+==========================================+\n";
+        cout << "|  [1] Mulai Simulasi Produksi Baru        |\n";
+        cout << "|  [2] Lihat Peta Stasiun Produksi         |\n";
+        cout << "|  [3] Reset Batch                         |\n";
+        cout << "|  [4] Buka report.txt                     |\n";
+        cout << "|  [5] Cari Wafer (Binary Search)          |\n";
+        cout << "|  [6] Keluar                              |\n";
+        cout << "|__________________________________________|\n";
         cout << "Pilih menu: ";
         cin >> pilihan;
 

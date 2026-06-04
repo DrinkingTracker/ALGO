@@ -1,5 +1,5 @@
-#include "heading\sorting.h"
-#include "heading\utils.h"
+#include "heading/sorting.h"
+#include "heading/utils.h"
 #include <iostream>
 
 using namespace std;

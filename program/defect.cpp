@@ -1,5 +1,5 @@
-#include "heading\defect.h"
-#include "heading\utils.h"
+#include "heading/defect.h"
+#include "heading/utils.h"
 #include <iostream>
 #include <random>
 
@@ -33,7 +33,7 @@ void prosesQualityControl(vector<Wafer>& w) {
 }
 
 void pelabelanUlangAnimasi(vector<Wafer>& w) {
-    cout << "=== PROSES GRADING & PELABELAN ULANG ===\n";
+        cout << "=== PROSES GRADING & PELABELAN ULANG ===\n";
     delayAnimasi(1000);
 
     for (size_t i = 0; i < w.size(); i++) {
@@ -43,3 +43,4 @@ void pelabelanUlangAnimasi(vector<Wafer>& w) {
         delayAnimasi(300); 
     }
     cout << "\nPelabelan akhir selesai.\n";
+}
