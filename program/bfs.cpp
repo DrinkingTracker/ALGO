@@ -1,5 +1,5 @@
-#include "bfs.h"
-#include "utils.h"
+#include "heading\bfs.h"
+#include "heading\utils.h"
 #include <iostream>
 
 using namespace std;

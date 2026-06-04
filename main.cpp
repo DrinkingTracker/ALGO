@@ -3,12 +3,12 @@
 #include <iomanip>
 #include <sstream>
 
-#include "wafer.h"
-#include "utils.h"
-#include "sorting.h"
-#include "bfs.h"
-#include "defect.h"
-#include "report.h"
+#include "heading\wafer.h"
+#include "heading\utils.h"
+#include "heading\sorting.h"
+#include "heading\bfs.h"
+#include "heading\defect.h"
+#include "heading\report.h"
 
 using namespace std;
 
