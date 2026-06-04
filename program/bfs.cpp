@@ -12,38 +12,94 @@ using namespace std;
 /*
   Grid berdasarkan draw.io (7 baris x 5 kolom):
 
-  Row 0:  ---    SP1    ---    ---    ---
-  Row 1:  CVD1   ION1   CVD2   ---    ---
-  Row 2:  PLA1   PHO1   WET1   SP2    ---
-  Row 3:  SP4    WET2   ION2   PLA2   ---
-  Row 4:  PLA3   CVD3   WET3   END    ---
-  Row 5:  PHO2   ION3   PHO3   ---    ---
-  Row 6:  ---    SP3    ---    ---    ---
+=== PETA STASIUN PRODUKSI ===
+                    [SP1]
+                      |
+            ----------+----------
+            |         |         |
+          [CVD]-----[ION]-----[CVD]
+            |         |         |
+            |---------|---------|
+            |         |         |
+          [PLA]-----[PHO]-----[WET]-----[SP2]
+            |         |         |
+       +----|---------|---------|
+       |    |         |         |
+[SP4]--+--[WET]-----[ION]-----[PLA]
+       |    |         |         |
+       +----|---------|---------|    
+            |         |         |
+          [PLA]-----[CVD]-----[WET]-----[END]
+            |         |         |
+            |---------|---------|    
+            |         |         |
+          [PHO]-----[ION]-----[PHO]
+            |         |         |
+            ----------+----------
+                      |       
+                    [SP3]
 
   Nilai grid:
   0=EMPTY, 1=SP1, 2=SP2, 3=SP3, 4=SP4,
   10=PHO, 20=CVD, 30=PLA, 40=ION, 50=WET, 99=END
+  11 = WALL
   (indeks mesin dibedakan lewat gridLabel)
 */
 
 int gridMap[GRID_ROWS][GRID_COLS] = {
-    {  0,  1,  0,  0,  0 },  // row 0
-    { 20, 40, 20,  0,  0 },  // row 1
-    { 30, 10, 50,  2,  0 },  // row 2
-    {  4, 50, 40, 30,  0 },  // row 3
-    { 30, 20, 50, 99,  0 },  // row 4
-    { 10, 40, 10,  0,  0 },  // row 5
-    {  0,  3,  0,  0,  0 }   // row 6
+    { 11, 11, 11, 11, 11, 11,  1, 11, 11, 11, 11 }, // row 0  : SP1
+    { 11, 11, 11, 11, 11, 11,  0, 11, 11, 11, 11 }, // row 1
+    { 11, 11, 11, 11,  0,  0,  0,  0,  0, 11, 11 }, // row 2
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row 3
+    { 11, 11, 11, 11, 20, 11, 40, 11, 20, 11, 11 }, // row 4  : CVD1, ION1, CVD2
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row 5
+    { 11, 11, 11, 11,  0,  0,  0,  0,  0, 11, 11 }, // row 6
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row 7
+    { 11, 11, 11, 11, 30, 11, 10, 11, 50,  0,  2 }, // row 8  : PLA1, PHO1, WET1, SP2
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row 9
+    { 11, 11,  0,  0,  0,  0,  0,  0,  0, 11, 11 }, // row10
+    { 11, 11,  0, 11,  0, 11,  0, 11,  0, 11, 11 }, // row11
+    {  4,  0,  0,  0,  0,  0, 40,  0, 30, 11, 11 }, // row12 : SP4, ION2, PLA2
+    { 11, 11,  0, 11,  0, 11,  0, 11,  0, 11, 11 }, // row13
+    { 11, 11,  0,  0,  0,  0,  0,  0,  0, 11, 11 }, // row14
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row15
+    { 11, 11, 11, 11, 30, 11, 20, 11, 50,  0, 99 }, // row16 : PLA3, CVD3, WET3, END
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row17
+    { 11, 11, 11, 11,  0,  0,  0,  0,  0, 11, 11 }, // row18
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row19
+    { 11, 11, 11, 11, 10, 11, 40, 11, 10, 11, 11 }, // row20 : PHO2, ION3, PHO3
+    { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row21
+    { 11, 11, 11, 11,  0,  0,  0,  0,  0, 11, 11 }, // row22
+    { 11, 11, 11, 11, 11, 11,  0, 11, 11, 11, 11 }, // row23
+    { 11, 11, 11, 11, 11, 11,  3,  3, 11, 11, 11 }, // row24 : SP3
 };
 
 string gridLabel[GRID_ROWS][GRID_COLS] = {
-    {"   ", "SP1", "   ", "   ", "   "},
-    {"CVD1","ION1","CVD2","   ", "   "},
-    {"PLA1","PHO1","WET1","SP2", "   "},
-    {"SP4 ","WET2","ION2","PLA2","   "},
-    {"PLA3","CVD3","WET3","END ", "   "},
-    {"PHO2","ION3","PHO3","   ", "   "},
-    {"   ", "SP3", "   ", "   ", "   "}
+{"WALL", "WALL", "WALL", "WALL", "WALL", " WALL ", "SP1", "WALL", "WALL", "WALL","WALL"},
+{"WALL", "WALL", "WALL", "WALL", "WALL", "WALL", "    ", "WALL", "WALL", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "CVD1", "WALL", "ION1", "WALL", "CVD2", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "PLA1", "WALL", "PHO1", "WALL", "WET1", "    ", "SP2 "},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"SP4 ", "    ", "    ", "    ", "    ", "    ", "ION2", "    ", "PLA2", "WALL", "WALL"},
+{"WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "PLA3", "WALL", "CVD3", "WALL", "WET3", "    ", "END "},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "PHO2", "WALL", "ION3", "WALL", "PHO3", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "WALL", "WALL", "    ", "WALL", "WALL", "WALL", "WALL"},
+{"WALL", "WALL", "WALL", "WALL", "WALL", "WALL", "SP3", "SP3 ", "WALL", "WALL", "WALL"}
 };
 
 void inisialisasiGrid() {
@@ -89,6 +145,7 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
     else if (target == ION) targetVal = 40;
     else if (target == WET) targetVal = 50;
     else if (target == END_NODE) targetVal = 99;
+    else if (target == WALL) targetVal = 11;
 
     // BFS
     bool visited[GRID_ROWS][GRID_COLS] = {};
@@ -122,8 +179,8 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
         for (int d = 0; d < 4; d++) {
             int nr = r + dr[d];
             int nc = c + dc[d];
-            if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < 4 &&
-                !visited[nr][nc] && gridMap[nr][nc] != 0) {
+            if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS &&
+                !visited[nr][nc] && gridMap[nr][nc] != 11) {
                 visited[nr][nc] = true;
                 prevRow[nr][nc] = r;
                 prevCol[nr][nc] = c;
@@ -158,10 +215,10 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
 
 // Posisi start point di grid
 pair<int,int> posisiStartPoint(int sp) {
-    if (sp == 1) return {0, 1};
-    if (sp == 2) return {2, 3};
-    if (sp == 3) return {6, 1};
-    if (sp == 4) return {3, 0};
+    if (sp == 1) return {0, 6};
+    if (sp == 2) return {8, 10};
+    if (sp == 3) return {24, 6};
+    if (sp == 4) return {12, 0};
     return {0, 0};
 }
 
@@ -225,7 +282,7 @@ void jalankanBfsRouting(vector<Wafer>& w) {
                 if (gridMap[r][c] == targetVal) { foundR=r; foundC=c; break; }
                 for (int d=0;d<4;d++) {
                     int nr=r+dr[d], nc=c+dc[d];
-                    if (nr>=0&&nr<GRID_ROWS&&nc>=0&&nc<4&&!visited[nr][nc]&&gridMap[nr][nc]!=0) {
+                    if (nr>=0&&nr<GRID_ROWS&&nc>=0&&nc<GRID_COLS&&!visited[nr][nc]&&gridMap[nr][nc]!=11) {
                         visited[nr][nc]=true;
                         q.push({nr,nc});
                     }
