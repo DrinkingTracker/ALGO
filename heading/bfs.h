@@ -8,7 +8,8 @@
 // Tipe node pada grid
 enum NodeType {
     EMPTY, SP1, SP2, SP3, SP4,
-    PHO, CVD, PLA, ION, WET, END_NODE
+    PHO, CVD, PLA, ION, WET, END_NODE,
+    WALL
 };
 
 struct Node {
@@ -18,8 +19,8 @@ struct Node {
 };
 
 // Dimensi grid sesuai draw.io: 7 baris x 5 kolom
-#define GRID_ROWS 7
-#define GRID_COLS 5
+#define GRID_ROWS 25
+#define GRID_COLS 11 // 7 dan 5
 
 extern int gridMap[GRID_ROWS][GRID_COLS];
 extern std::string gridLabel[GRID_ROWS][GRID_COLS];
