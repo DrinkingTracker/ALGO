@@ -11,9 +11,9 @@ void exportReport(const vector<Wafer>& w, int batch) {
 
     ofstream file("report.txt", ios::app); 
     if (file.is_open()) {
-        file << "=======================================\n";
-        file << "REPORT BATCH PRODUKSI: " << batch << "\n";
-        file << "=======================================\n\n";
+        file << "==============================================================================\n";
+        file <<  "REPORT BATCH PRODUKSI: " << batch << "\n";
+        file << "==============================================================================\n\n";
 
         for (const auto& wafer : w) {
             file << "Label Akhir  : " << wafer.labelAkhir << "\n";
@@ -22,11 +22,11 @@ void exportReport(const vector<Wafer>& w, int batch) {
             file << "Matriks 10x10 (1=OK, 0=Defect):\n";
             for (int i = 0; i < 10; i++) {
                 for (int j = 0; j < 10; j++) {
-                    file << wafer.gridDefect[i][j] << " ";
+                    file << wafer.coreGrid[i][j] << " ";
                 }
                 file << "\n";
             }
-            file << "---------------------------------------\n";
+            file << "------------------------------------------------------------------------------\n";
         }
         file.close();
         cout << "✓ Export report.txt berhasil!\n";

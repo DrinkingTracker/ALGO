@@ -59,7 +59,7 @@ int gridMap[GRID_ROWS][GRID_COLS] = {
     { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row 9
     { 11, 11,  0,  0,  0,  0,  0,  0,  0, 11, 11 }, // row10
     { 11, 11,  0, 11,  0, 11,  0, 11,  0, 11, 11 }, // row11
-    {  4,  0,  0,  0,  0,  0, 40,  0, 30, 11, 11 }, // row12 : SP4, ION2, PLA2
+    {  4,  0,  0,  0, 50,  0, 40,  0, 30, 11, 11 }, // row12 : SP4, ION2, PLA2
     { 11, 11,  0, 11,  0, 11,  0, 11,  0, 11, 11 }, // row13
     { 11, 11,  0,  0,  0,  0,  0,  0,  0, 11, 11 }, // row14
     { 11, 11, 11, 11,  0, 11,  0, 11,  0, 11, 11 }, // row15
@@ -87,7 +87,7 @@ string gridLabel[GRID_ROWS][GRID_COLS] = {
 {"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
 {"WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
 {"WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
-{"SP4 ", "    ", "    ", "    ", "    ", "    ", "ION2", "    ", "PLA2", "WALL", "WALL"},
+{"SP4 ", "    ", "    ", "    ", "WET2", "    ", "ION2", "    ", "PLA2", "WALL", "WALL"},
 {"WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
 {"WALL", "WALL", "    ", "    ", "    ", "    ", "    ", "    ", "    ", "WALL", "WALL"},
 {"WALL", "WALL", "WALL", "WALL", "    ", "WALL", "    ", "WALL", "    ", "WALL", "WALL"},
@@ -108,36 +108,57 @@ void inisialisasiGrid() {
 
 void tampilkanPeta() {
     cout << "\n=== PETA STASIUN PRODUKSI ===\n\n";
-    // Header kolom
-    cout << "     ";
-    for (int c = 0; c < 4; c++) cout << "  C" << c << "  ";
-    cout << "\n";
-    cout << "     +-----+-----+-----+-----+\n";
-
-    for (int r = 0; r < GRID_ROWS; r++) {
-        cout << " R" << r << "  |";
-        for (int c = 0; c < 4; c++) {
-            string lbl = gridLabel[r][c];
-            if (lbl == "   " || lbl == "    ") {
-                cout << "     |";
-            } else {
-                // Pad ke 5 karakter
-                while ((int)lbl.size() < 4) lbl += " ";
-                cout << lbl << " |";
-            }
-        }
-        cout << "\n";
-        cout << "     +-----+-----+-----+-----+\n";
-    }
-
-    cout << "\nKoneksi: setiap node terhubung ke atas/bawah/kiri/kanan\n";
-    cout << "Urutan mesin: PHO -> CVD -> PLA -> ION -> END\n";
+    cout << "                    [SP1]\n";
+    cout << "                      |\n";
+    cout << "            ----------+----------\n";
+    cout << "            |         |         |\n";
+    cout << "          [CVD1]---[ION1]---[CVD2]\n";
+    cout << "            |         |         |\n";
+    cout << "            +---------+---------+\n";
+    cout << "            |         |         |\n";
+    cout << "          [PLA1]---[PHO1]---[WET1]---[SP2]\n";
+    cout << "            |         |         |\n";
+    cout << "       +----+---------+---------+\n";
+    cout << "       |    |         |         |\n";
+    cout << "[SP4]--+--[WET2]---[ION2]---[PLA2]\n";
+    cout << "       |    |         |         |\n";
+    cout << "       +----+---------+---------+\n";
+    cout << "            |         |         |\n";
+    cout << "          [PLA3]---[CVD3]---[WET3]---[END]\n";
+    cout << "            |         |         |\n";
+    cout << "            +---------+---------+\n";
+    cout << "            |         |         |\n";
+    cout << "          [PHO2]---[ION3]---[PHO3]\n";
+    cout << "            |         |         |\n";
+    cout << "            ----------+----------\n";
+    cout << "                      |\n";
+    cout << "                    [SP3]\n";
+    cout << "\nUrutan mesin: PHO -> WET -> CVD -> PLA -> WET -> ION -> END\n";
+    cout << "Setiap node terhubung ke atas/bawah/kiri/kanan\n";
 }
 
-// BFS mencari jalur terpendek dari (startRow,startCol) ke node dengan label target
-// Mengembalikan string jalur
-string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) {
-    // Encode target ke nilai gridMap
+// Helper: trim spasi dari string
+static string trimStr(string s) {
+    while (!s.empty() && s.back() == ' ') s.pop_back();
+    while (!s.empty() && s.front() == ' ') s.erase(s.begin());
+    return s;
+}
+
+// Helper: apakah node ini bermakna (bukan kosong/wall)
+static bool nodeBermakna(int r, int c) {
+    int v = gridMap[r][c];
+    return (v != 0 && v != 11);
+}
+
+// BFS dengan globalVisited untuk mencegah node dikunjungi ulang lintas segmen
+// Mengembalikan {jalurString, foundRow, foundCol}
+struct BFSResult {
+    string jalur;
+    int foundR, foundC;
+};
+
+BFSResult bfsCariJalurLengkap(int startRow, int startCol, NodeType target,
+                               bool globalVisited[GRID_ROWS][GRID_COLS]) {
     int targetVal = 0;
     if (target == PHO) targetVal = 10;
     else if (target == CVD) targetVal = 20;
@@ -145,9 +166,7 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
     else if (target == ION) targetVal = 40;
     else if (target == WET) targetVal = 50;
     else if (target == END_NODE) targetVal = 99;
-    else if (target == WALL) targetVal = 11;
 
-    // BFS
     bool visited[GRID_ROWS][GRID_COLS] = {};
     int prevRow[GRID_ROWS][GRID_COLS];
     int prevCol[GRID_ROWS][GRID_COLS];
@@ -163,15 +182,12 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
 
     int dr[] = {-1, 1, 0, 0};
     int dc[] = {0, 0, -1, 1};
-
     int foundR = -1, foundC = -1;
 
     while (!q.empty()) {
         auto [r, c] = q.front(); q.pop();
 
         if (gridMap[r][c] == targetVal) {
-            // Cek apakah ini target yang kita cari
-            // Jika targetIdx == 0 artinya ambil yang pertama ditemukan (terdekat)
             foundR = r; foundC = c;
             break;
         }
@@ -179,8 +195,10 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
         for (int d = 0; d < 4; d++) {
             int nr = r + dr[d];
             int nc = c + dc[d];
-            if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS &&
-                !visited[nr][nc] && gridMap[nr][nc] != 11) {
+            if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS
+                && !visited[nr][nc]
+                && gridMap[nr][nc] != 11
+                && !globalVisited[nr][nc]) {
                 visited[nr][nc] = true;
                 prevRow[nr][nc] = r;
                 prevCol[nr][nc] = c;
@@ -189,28 +207,42 @@ string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) 
         }
     }
 
-    if (foundR == -1) return "[TIDAK DITEMUKAN]";
+    if (foundR == -1) return {"[TIDAK DITEMUKAN]", -1, -1};
 
     // Rekonstruksi jalur
-    vector<string> jalur;
+    vector<pair<int,int>> jalurPos;
     int cr = foundR, cc = foundC;
     while (cr != -1 && cc != -1) {
-        jalur.push_back(gridLabel[cr][cc]);
+        jalurPos.push_back({cr, cc});
         int pr = prevRow[cr][cc];
         int pc = prevCol[cr][cc];
         cr = pr; cc = pc;
     }
-    reverse(jalur.begin(), jalur.end());
+    reverse(jalurPos.begin(), jalurPos.end());
 
+    // Tandai HANYA node tujuan (node terakhir = foundR,foundC) sebagai globalVisited
+    // Node mesin yang dilewati sebagai koridor tetap bisa digunakan segmen berikutnya
+    globalVisited[foundR][foundC] = true;
+
+    // Bangun string jalur — hanya tampilkan node bermakna
     string hasil = "";
-    for (size_t i = 0; i < jalur.size(); i++) {
-        // Trim spasi
-        string s = jalur[i];
-        while (!s.empty() && s.back() == ' ') s.pop_back();
-        hasil += "[" + s + "]";
-        if (i < jalur.size() - 1) hasil += " -> ";
+    bool first = true;
+    for (auto [r, c] : jalurPos) {
+        if (!nodeBermakna(r, c)) continue;
+        string lbl = trimStr(gridLabel[r][c]);
+        if (lbl.empty()) continue;
+        if (!first) hasil += " -> ";
+        hasil += "[" + lbl + "]";
+        first = false;
     }
-    return hasil;
+
+    return {hasil, foundR, foundC};
+}
+
+// Wrapper lama untuk kompatibilitas (tanpa globalVisited)
+string bfsCariJalur(int startRow, int startCol, NodeType target, int targetIdx) {
+    bool dummy[GRID_ROWS][GRID_COLS] = {};
+    return bfsCariJalurLengkap(startRow, startCol, target, dummy).jalur;
 }
 
 // Posisi start point di grid
@@ -234,7 +266,7 @@ pair<int,int> cariPosisiNode(NodeType target) {
     // Kembalikan posisi pertama yang ditemukan dari BFS
     // (akan ditentukan per-wafer saat routing)
     for (int r = 0; r < GRID_ROWS; r++)
-        for (int c = 0; c < 4; c++)
+        for (int c = 0; c < GRID_ROWS; c++)
             if (gridMap[r][c] == targetVal)
                 return {r, c};
     return {-1, -1};
@@ -242,12 +274,11 @@ pair<int,int> cariPosisiNode(NodeType target) {
 
 void jalankanBfsRouting(vector<Wafer>& w) {
     cout << "=== PROSES ROUTING BFS ===\n";
-    cout << "Urutan mesin: PHO -> CVD -> PLA -> ION -> END\n\n";
+    cout << "Urutan mesin: PHO, WET, CVD, PLA, WET, ION, END_NODE\n\n";
     delayAnimasi(1000);
 
-    // Urutan mesin yang harus dilalui
-    vector<NodeType> urutanMesin = {PHO, CVD, PLA, ION, END_NODE};
-    vector<string> namaMesin = {"Photolithography", "CVD", "Plasma Etcher", "Ion Implanter", "END"};
+    vector<NodeType> urutanMesin = {PHO, WET, CVD, PLA, WET, ION, END_NODE};
+    vector<string> namaMesin = {"Photolithography", "Wet Bench", "CVD", "Plasma Etcher", "Wet Bench", "Ion Implanter", "END"};
 
     for (auto& wafer : w) {
         cout << ">> Routing wafer: " << wafer.labelAwal << "\n";
@@ -256,52 +287,27 @@ void jalankanBfsRouting(vector<Wafer>& w) {
         auto [curR, curC] = posisiStartPoint(wafer.startPoint);
         string ruteTotal = "[SP" + to_string(wafer.startPoint) + "]";
 
+        // globalVisited mencegah node dikunjungi ulang lintas segmen
+        bool globalVisited[GRID_ROWS][GRID_COLS] = {};
+        globalVisited[curR][curC] = true;
+
         for (size_t i = 0; i < urutanMesin.size(); i++) {
-            string segmen = bfsCariJalur(curR, curC, urutanMesin[i], 0);
+            BFSResult hasil = bfsCariJalurLengkap(curR, curC, urutanMesin[i], globalVisited);
 
-            // Ambil posisi node tujuan untuk langkah berikutnya
-            // Parse segmen untuk ambil node terakhir (tujuan)
-            // Cari node tujuan di grid
-            int targetVal = 0;
-            if (urutanMesin[i] == PHO) targetVal = 10;
-            else if (urutanMesin[i] == CVD) targetVal = 20;
-            else if (urutanMesin[i] == PLA) targetVal = 30;
-            else if (urutanMesin[i] == ION) targetVal = 40;
-            else if (urutanMesin[i] == END_NODE) targetVal = 99;
-
-            // BFS ulang untuk dapatkan posisi tujuan
-            bool visited[GRID_ROWS][GRID_COLS] = {};
-            queue<pair<int,int>> q;
-            q.push({curR, curC});
-            visited[curR][curC] = true;
-            int dr[] = {-1,1,0,0};
-            int dc[] = {0,0,-1,1};
-            int foundR = curR, foundC = curC;
-            while (!q.empty()) {
-                auto [r,c] = q.front(); q.pop();
-                if (gridMap[r][c] == targetVal) { foundR=r; foundC=c; break; }
-                for (int d=0;d<4;d++) {
-                    int nr=r+dr[d], nc=c+dc[d];
-                    if (nr>=0&&nr<GRID_ROWS&&nc>=0&&nc<GRID_COLS&&!visited[nr][nc]&&gridMap[nr][nc]!=11) {
-                        visited[nr][nc]=true;
-                        q.push({nr,nc});
-                    }
-                }
-            }
-
-            // Tambahkan segmen ke rute (skip node awal agar tidak duplikat)
-            // Ambil bagian setelah node pertama
-            size_t pos = segmen.find(" -> ");
+            // Tambahkan ke rute total, skip node pertama (sudah ada)
+            size_t pos = hasil.jalur.find(" -> ");
             if (pos != string::npos)
-                ruteTotal += " -> " + segmen.substr(pos + 4);
-            else if (segmen != "[TIDAK DITEMUKAN]")
-                ruteTotal += " -> " + segmen;
+                ruteTotal += " -> " + hasil.jalur.substr(pos + 4);
+            else if (hasil.jalur != "[TIDAK DITEMUKAN]" && hasil.jalur != "")
+                ruteTotal += " -> " + hasil.jalur;
 
-            cout << "   Menuju " << namaMesin[i] << "... " << segmen << "\n";
+            cout << "   Menuju " << namaMesin[i] << "... " << hasil.jalur << "\n";
             delayAnimasi(300);
 
-            curR = foundR;
-            curC = foundC;
+            if (hasil.foundR != -1) {
+                curR = hasil.foundR;
+                curC = hasil.foundC;
+            }
         }
 
         wafer.ruteBFS = ruteTotal;
